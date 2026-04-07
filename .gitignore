@@ -1,0 +1,21 @@
+# Reference repos (clone locally, don't push)
+references/
+
+docs/benchmark_frameworks_comparison.md
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
