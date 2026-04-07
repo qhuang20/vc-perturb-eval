@@ -1,7 +1,7 @@
 """End-to-end integration test: data → model → evaluate → results."""
 
 import numpy as np
-import pytest
+
 from tests.conftest import build_random_anndata
 
 
@@ -14,11 +14,13 @@ def test_full_pipeline_with_mean_control(tmp_path):
     from perteval.models.baselines.mean_control import MeanControl
 
     rng = np.random.default_rng(42)
-    adata = build_random_anndata(n_obs=500, n_vars=100,
-        perturbations=["geneA", "geneB", "geneC", "geneD"], rng=rng)
+    adata = build_random_anndata(
+        n_obs=500, n_vars=100, perturbations=["geneA", "geneB", "geneC", "geneD"], rng=rng
+    )
 
-    splits = Splitter.split(adata, method="transfer", holdout_key="perturbation",
-                            frac=(0.5, 0.25, 0.25), seed=42)
+    splits = Splitter.split(
+        adata, method="transfer", holdout_key="perturbation", frac=(0.5, 0.25, 0.25), seed=42
+    )
     assert "train" in splits
     assert "test" in splits
 
@@ -63,12 +65,15 @@ def test_benchmark_runner_end_to_end(tmp_path):
     bench_dir = tmp_path / "benchmarks"
     bench_dir.mkdir()
     (bench_dir / "test_bench.yaml").write_text(
-        "dataset: testdata\nmetrics: [pearson_delta, mse]\n"
-        "split:\n  method: random\n  seed: 42\n"
+        "dataset: testdata\nmetrics: [pearson_delta, mse]\nsplit:\n  method: random\n  seed: 42\n"
     )
 
-    runner = BenchmarkRunner(benchmarks=["test_bench"], models=["mean_control"],
-                             benchmarks_dir=str(bench_dir), data_dir=str(data_dir))
+    runner = BenchmarkRunner(
+        benchmarks=["test_bench"],
+        models=["mean_control"],
+        benchmarks_dir=str(bench_dir),
+        data_dir=str(data_dir),
+    )
     results = runner.run()
 
     comparison = Compare.from_results(results)

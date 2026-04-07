@@ -1,7 +1,10 @@
 from __future__ import annotations
+
 from collections import defaultdict
+
 import numpy as np
 import polars as pl
+
 from perteval.bench.result import EvalResult
 
 

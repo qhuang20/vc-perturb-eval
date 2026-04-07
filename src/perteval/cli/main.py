@@ -33,7 +33,9 @@ def main(argv: list[str] | None = None) -> None:
 
     # --- perteval list ---
     list_parser = subparsers.add_parser("list", help="List available resources")
-    list_parser.add_argument("resource", choices=["models", "metrics", "benchmarks"], help="Resource type")
+    list_parser.add_argument(
+        "resource", choices=["models", "metrics", "benchmarks"], help="Resource type"
+    )
     list_parser.add_argument("--benchmarks-dir", default="benchmarks")
 
     args = parser.parse_args(argv)
@@ -51,8 +53,13 @@ def main(argv: list[str] | None = None) -> None:
 
 def _cmd_run(args):
     from perteval.bench.runner import BenchmarkRunner
-    runner = BenchmarkRunner(benchmarks=args.benchmark, models=args.model,
-                             benchmarks_dir=args.benchmarks_dir, data_dir=args.data_dir)
+
+    runner = BenchmarkRunner(
+        benchmarks=args.benchmark,
+        models=args.model,
+        benchmarks_dir=args.benchmarks_dir,
+        data_dir=args.data_dir,
+    )
     results = runner.run()
     for bench_name, model_results in results.items():
         for model_name, eval_result in model_results.items():
@@ -64,8 +71,10 @@ def _cmd_run(args):
 
 def _cmd_evaluate(args):
     import anndata as ad
+
     from perteval.bench.evaluator import Evaluator
     from perteval.data.types import PerturbationData
+
     predicted = ad.read_h5ad(args.predicted)
     ground_truth = ad.read_h5ad(args.ground_truth)
     data = PerturbationData(predicted=predicted, ground_truth=ground_truth)
@@ -82,15 +91,18 @@ def _cmd_list(args):
     match args.resource:
         case "models":
             from perteval.models.registry import model_registry
+
             for name in model_registry.list_available():
                 print(f"  {name}")
         case "metrics":
             from perteval.metrics.registry import metric_registry
+
             for name in metric_registry.list_available():
                 info = metric_registry.get(name)
                 print(f"  {name} ({info.metric_type.value}) — {info.description}")
         case "benchmarks":
             from perteval.bench.task_manager import TaskManager
+
             manager = TaskManager(args.benchmarks_dir)
             for name in manager.list_available():
                 print(f"  {name}")

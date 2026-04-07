@@ -27,9 +27,7 @@ class MeanControl:
         self._control_mean = control_cells.mean(axis=0)
         self._gene_names = list(adata.var_names)
 
-    def predict(
-        self, control_adata: AnnData, perturbations: list[str], **kwargs
-    ) -> AnnData:
+    def predict(self, control_adata: AnnData, perturbations: list[str], **kwargs) -> AnnData:
         if self._control_mean is None:
             raise RuntimeError("Model not trained. Call train() first.")
         n_perts = len(perturbations)

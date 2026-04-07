@@ -26,8 +26,7 @@ class PerturbationData:
         pred, gt = self.predicted, self.ground_truth
         if pred.n_vars != gt.n_vars:
             raise ValueError(
-                f"Gene count mismatch: predicted has {pred.n_vars}, "
-                f"ground_truth has {gt.n_vars}"
+                f"Gene count mismatch: predicted has {pred.n_vars}, ground_truth has {gt.n_vars}"
             )
         pred_genes = pred.var_names.values
         gt_genes = gt.var_names.values
@@ -49,5 +48,5 @@ class PerturbationData:
             )
         object.__setattr__(self, "gene_names", gt_genes)
         gt_labels = gt.obs[self.perturbation_key].unique().tolist()
-        labels = [l for l in gt_labels if l != self.control_key]
+        labels = [label for label in gt_labels if label != self.control_key]
         object.__setattr__(self, "perturbation_labels", sorted(labels))

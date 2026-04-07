@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
+
 import yaml
 
 
@@ -28,7 +30,9 @@ class TaskManager:
     def get(self, name: str) -> BenchmarkConfig:
         path = self._dir / f"{name}.yaml"
         if not path.exists():
-            raise KeyError(f"Benchmark '{name}' not found at {path}. Available: {self.list_available()}")
+            raise KeyError(
+                f"Benchmark '{name}' not found at {path}. Available: {self.list_available()}"
+            )
         with open(path) as f:
             raw = yaml.safe_load(f)
         split_config = raw.get("split", {})

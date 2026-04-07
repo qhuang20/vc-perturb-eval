@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
 from perteval.bench.evaluator import Evaluator
 from perteval.bench.result import EvalResult
 from perteval.bench.task_manager import TaskManager
@@ -57,7 +56,7 @@ class BenchmarkRunner:
             )
             results[bench_name] = {}
 
-            for model_name, result_key in zip(self.models, model_keys):
+            for model_name, result_key in zip(self.models, model_keys, strict=True):
                 model_cls = model_registry.get(model_name)
                 model = model_cls() if isinstance(model_cls, type) else model_cls
 
@@ -70,11 +69,7 @@ class BenchmarkRunner:
                 test_adata = splits["test"]
                 control_mask = test_adata.obs["perturbation"] == "control"
                 control_cells = test_adata[control_mask]
-                test_perts = [
-                    p
-                    for p in test_adata.obs["perturbation"].unique()
-                    if p != "control"
-                ]
+                test_perts = [p for p in test_adata.obs["perturbation"].unique() if p != "control"]
 
                 if len(test_perts) == 0:
                     continue

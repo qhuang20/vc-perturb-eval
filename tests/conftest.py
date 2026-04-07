@@ -72,7 +72,7 @@ def synthetic_pair(rng):
     ground_truth = build_random_anndata(n_obs=200, rng=rng)
     pred_rng = np.random.default_rng(99)
     predicted = ground_truth.copy()
-    predicted.X = ground_truth.X + pred_rng.standard_normal(ground_truth.X.shape).astype(
-        np.float32
-    ) * 0.1
+    predicted.X = (
+        ground_truth.X + pred_rng.standard_normal(ground_truth.X.shape).astype(np.float32) * 0.1
+    )
     return predicted, ground_truth

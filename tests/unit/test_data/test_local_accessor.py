@@ -5,6 +5,7 @@ from tests.conftest import build_random_anndata
 
 def test_local_accessor_load(tmp_path):
     from perteval.data.accessors.local import LocalAccessor
+
     adata = build_random_anndata(n_obs=50)
     path = tmp_path / "test.h5ad"
     adata.write_h5ad(path)
@@ -16,6 +17,7 @@ def test_local_accessor_load(tmp_path):
 
 def test_local_accessor_list_datasets(tmp_path):
     from perteval.data.accessors.local import LocalAccessor
+
     adata = build_random_anndata(n_obs=10)
     (tmp_path / "datasetA.h5ad").touch()
     adata.write_h5ad(tmp_path / "datasetB.h5ad")
@@ -27,6 +29,7 @@ def test_local_accessor_list_datasets(tmp_path):
 
 def test_local_accessor_missing_file_raises(tmp_path):
     from perteval.data.accessors.local import LocalAccessor
+
     accessor = LocalAccessor(str(tmp_path))
     with pytest.raises(FileNotFoundError, match="not found"):
         accessor.load("nonexistent")

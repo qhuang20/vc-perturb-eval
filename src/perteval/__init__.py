@@ -2,6 +2,6 @@
 
 __version__ = "0.1.0"
 
-from perteval.data.types import PerturbationData
-from perteval.bench.result import EvalResult
-from perteval.bench.evaluator import Evaluator
+from perteval.bench.evaluator import Evaluator as Evaluator
+from perteval.bench.result import EvalResult as EvalResult
+from perteval.data.types import PerturbationData as PerturbationData

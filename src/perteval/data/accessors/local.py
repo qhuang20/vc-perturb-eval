@@ -13,9 +13,7 @@ class LocalAccessor:
         path = self._data_dir / f"{name}.h5ad"
         if not path.exists():
             available = self.list_datasets()
-            raise FileNotFoundError(
-                f"Dataset '{name}' not found at {path}. Available: {available}"
-            )
+            raise FileNotFoundError(f"Dataset '{name}' not found at {path}. Available: {available}")
         return ad.read_h5ad(path, **kwargs)
 
     def list_datasets(self) -> list[str]:

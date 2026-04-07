@@ -54,8 +54,12 @@ class Evaluator:
         per_pert = pl.DataFrame(rows)
         metric_cols = [c for c in per_pert.columns if c != "perturbation"]
         agg_rows = []
-        for stat_name, stat_fn in [("mean", np.nanmean), ("std", np.nanstd),
-                                    ("min", np.nanmin), ("max", np.nanmax)]:
+        for stat_name, stat_fn in [
+            ("mean", np.nanmean),
+            ("std", np.nanstd),
+            ("min", np.nanmin),
+            ("max", np.nanmax),
+        ]:
             agg_row: dict[str, object] = {"statistic": stat_name}
             for col in metric_cols:
                 agg_row[col] = float(stat_fn(per_pert[col].to_numpy()))

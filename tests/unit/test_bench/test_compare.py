@@ -1,28 +1,34 @@
 # tests/unit/test_bench/test_compare.py
 import polars as pl
-import pytest
+
 from perteval.bench.result import EvalResult
 
 
 def _make_result(pearson: float, mse_val: float, model: str, bench: str) -> EvalResult:
-    per_pert = pl.DataFrame({
-        "perturbation": ["pertA", "pertB"],
-        "pearson_delta": [pearson, pearson + 0.02],
-        "mse": [mse_val, mse_val - 0.01],
-    })
-    agg = pl.DataFrame({
-        "statistic": ["mean"],
-        "pearson_delta": [pearson + 0.01],
-        "mse": [mse_val - 0.005],
-    })
+    per_pert = pl.DataFrame(
+        {
+            "perturbation": ["pertA", "pertB"],
+            "pearson_delta": [pearson, pearson + 0.02],
+            "mse": [mse_val, mse_val - 0.01],
+        }
+    )
+    agg = pl.DataFrame(
+        {
+            "statistic": ["mean"],
+            "pearson_delta": [pearson + 0.01],
+            "mse": [mse_val - 0.005],
+        }
+    )
     return EvalResult(
-        per_perturbation=per_pert, aggregated=agg,
+        per_perturbation=per_pert,
+        aggregated=agg,
         config={"model": model, "benchmark": bench, "metrics": ["pearson_delta", "mse"]},
     )
 
 
 def test_compare_summary():
     from perteval.bench.compare import Compare
+
     results = {
         "norman19": {
             "mean_control": _make_result(0.5, 0.3, "mean_control", "norman19"),
@@ -39,6 +45,7 @@ def test_compare_summary():
 
 def test_compare_evaluate_many_aggregates():
     from perteval.bench.compare import Compare
+
     all_results = []
     for seed in range(3):
         r = {

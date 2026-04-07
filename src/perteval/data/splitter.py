@@ -6,8 +6,13 @@ from anndata import AnnData
 
 class Splitter:
     @staticmethod
-    def split(adata: AnnData, method: str = "random", frac: tuple[float, ...] = (0.8, 0.1, 0.1),
-              holdout_key: str | None = None, seed: int = 42) -> dict[str, AnnData]:
+    def split(
+        adata: AnnData,
+        method: str = "random",
+        frac: tuple[float, ...] = (0.8, 0.1, 0.1),
+        holdout_key: str | None = None,
+        seed: int = 42,
+    ) -> dict[str, AnnData]:
         match method:
             case "random":
                 return Splitter._random_split(adata, frac, seed)

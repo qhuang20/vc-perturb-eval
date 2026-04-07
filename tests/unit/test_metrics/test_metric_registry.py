@@ -3,6 +3,7 @@ import pytest
 
 def test_metric_registry_has_builtins():
     from perteval.metrics.registry import metric_registry
+
     available = metric_registry.list_available()
     assert "pearson_delta" in available
     assert "mse" in available
@@ -14,6 +15,7 @@ def test_metric_registry_has_builtins():
 def test_metric_registry_get_returns_metric_info():
     from perteval.metrics.base import BestValue, MetricType
     from perteval.metrics.registry import metric_registry
+
     info = metric_registry.get("pearson_delta")
     assert info.metric_type == MetricType.EXPRESSION
     assert info.best_value == BestValue.ONE
@@ -41,7 +43,9 @@ def test_metric_registry_lazy_resolution():
 
 def test_metric_registry_compute():
     import numpy as np
+
     from perteval.metrics.registry import metric_registry
+
     info = metric_registry.get("mse")
     pred = np.array([1.0, 2.0, 3.0])
     truth = np.array([1.0, 2.0, 3.0])

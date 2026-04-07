@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import polars as pl
 
@@ -17,7 +17,7 @@ class EvalResult:
 
     def __post_init__(self) -> None:
         if "timestamp" not in self.config:
-            self.config["timestamp"] = datetime.now(timezone.utc).isoformat()
+            self.config["timestamp"] = datetime.now(UTC).isoformat()
 
     def to_json(self, path: str) -> None:
         data = {

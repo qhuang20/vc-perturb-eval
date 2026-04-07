@@ -5,6 +5,7 @@ from tests.conftest import build_random_anndata
 
 def test_mean_control_predict_shape():
     from perteval.models.baselines.mean_control import MeanControl
+
     rng = np.random.default_rng(42)
     adata = build_random_anndata(n_obs=200, perturbations=["pertA", "pertB"], rng=rng)
     model = MeanControl()
@@ -18,6 +19,7 @@ def test_mean_control_predict_shape():
 
 def test_mean_control_predict_is_control_mean():
     from perteval.models.baselines.mean_control import MeanControl
+
     rng = np.random.default_rng(42)
     adata = build_random_anndata(n_obs=500, perturbations=["pertA"], rng=rng)
     model = MeanControl()
@@ -32,10 +34,12 @@ def test_mean_control_predict_is_control_mean():
 
 def test_mean_control_name():
     from perteval.models.baselines.mean_control import MeanControl
+
     model = MeanControl()
     assert model.name == "mean_control"
 
 
 def test_model_registry_has_mean_control():
     from perteval.models.registry import model_registry
+
     assert "mean_control" in model_registry.list_available()

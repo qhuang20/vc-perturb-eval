@@ -3,6 +3,7 @@ import pytest
 
 def test_task_manager_load_yaml(tmp_path):
     from perteval.bench.task_manager import TaskManager
+
     yaml_content = """
 dataset: norman19
 metrics: [pearson_delta, mse]
@@ -23,6 +24,7 @@ aggregation: average
 
 def test_task_manager_discover(tmp_path):
     from perteval.bench.task_manager import TaskManager
+
     (tmp_path / "bench_a.yaml").write_text("dataset: a\nmetrics: [mse]")
     (tmp_path / "bench_b.yaml").write_text("dataset: b\nmetrics: [mse]")
     (tmp_path / "not_yaml.txt").write_text("ignored")
@@ -33,6 +35,7 @@ def test_task_manager_discover(tmp_path):
 
 def test_task_manager_defaults(tmp_path):
     from perteval.bench.task_manager import TaskManager
+
     yaml_content = "dataset: norman19\nmetrics: [mse]\n"
     (tmp_path / "minimal.yaml").write_text(yaml_content)
     manager = TaskManager(str(tmp_path))
@@ -45,6 +48,7 @@ def test_task_manager_defaults(tmp_path):
 
 def test_task_manager_missing_raises(tmp_path):
     from perteval.bench.task_manager import TaskManager
+
     manager = TaskManager(str(tmp_path))
     with pytest.raises(KeyError, match="not found"):
         manager.get("nonexistent")
