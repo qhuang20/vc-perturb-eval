@@ -1,0 +1,8 @@
+dataset: norman19
+metrics: [pearson_delta, mse, mae, overlap_at_k, edistance]
+split:
+  method: transfer
+  holdout_key: perturbation
+  frac: [0.64, 0.16, 0.2]
+  seed: 42
+aggregation: average
