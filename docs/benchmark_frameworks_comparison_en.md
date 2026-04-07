@@ -1,7 +1,8 @@
 # Perturbation Prediction Benchmark Frameworks: Deep Comparison Report
 
-> Deep architectural comparison of 7 open-source projects, distilling reusable design patterns
-> Generated: 2026-04-07
+> Review: Architectural comparison of 7 popular eval frameworks, distilling reusable design patterns
+> Goal: design a unified evaluation framework for single-cell perturbation prediction 
+
 
 ---
 
