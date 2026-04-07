@@ -344,6 +344,12 @@ split:
   seed: 42
 aggregation: average          # average | logfc | pca | de_scores (default: average)
 
+# Optional: schema validation for input AnnData
+schema:
+  obs_required: [perturbation, cell_type]  # required columns in adata.obs
+  var_required: [gene_name]                # required columns in adata.var
+  layers: [X]                              # required layers
+
 # Future extensions (all optional)
 eval_dims: [per_pert]         # default: [per_pert]
 deg_filter: null              # default: no filtering
@@ -352,6 +358,8 @@ leaderboard: null             # default: no leaderboard generation
 ```
 
 **Evolution rule:** New fields are always optional with sensible defaults. Existing YAML files never break.
+
+**Schema validation:** When `schema` is present, data is validated at load time (before training/inference), giving early errors like "your AnnData is missing the `cell_type` column" instead of failing deep in the evaluation pipeline.
 
 ---
 
@@ -525,3 +533,18 @@ vc-perturb-eval/
 | BenchmarkGroup (dataset+metric+split) | TDC | L4 YAML benchmarks |
 | evaluate_many (multi-seed robustness) | TDC | L4 Compare |
 | DataAccessor pattern | TDC | L1 accessors |
+| Schema validation for data contracts | OpenProblems | L1/YAML schema field |
+
+---
+
+## 14. Future Considerations (v2+)
+
+Items explicitly deferred from v1. Listed here so they inform v1 interface design without adding implementation scope.
+
+- **Matrix experiment YAML**: Declarative experiment matrix (benchmarks × models × aggregations × seeds) as a convenience layer over BenchmarkRunner. Pure addon — parses YAML into existing BenchmarkRunner constructor args.
+- **Distributed evaluation**: Support for multi-GPU/multi-node metric computation (rank/world_size sharding, dist_reduce_fx). Not needed for v1 dataset sizes; model training already handles its own DDP.
+- **Profile mechanism**: Named metric presets (e.g., `"minimal"`, `"full"`) defined via YAML, as aliases for metric lists. Pure addon over existing metrics list.
+- **Aggregation registry**: If aggregation strategies grow beyond 3-4, extract from Evaluator into independent registry with `AggregationStrategy` Protocol.
+- **Pairwise + ranking evaluation**: N×N perturbation pairwise metrics and ranking accuracy (PerturBench pattern).
+- **Filter pipeline**: Post-prediction processing chain before metrics (lm-eval-harness pattern).
+- **MuData support**: Multimodal data via MuData for multi-omics perturbation experiments.
