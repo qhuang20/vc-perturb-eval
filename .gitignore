@@ -1,7 +1,6 @@
 # Reference repos (clone locally, don't push)
 references/
 
-docs/benchmark_frameworks_comparison.md
 
 # Python
 __pycache__/
@@ -23,4 +22,3 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
-docs/tmp.md
