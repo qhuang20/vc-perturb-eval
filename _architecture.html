@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>perteval Architecture</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0d1117; color: #e6edf3; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    h1 { border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+    h2 { color: #58a6ff; margin-top: 3rem; }
+    .diagram-container { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; overflow: auto; cursor: grab; }
+    .diagram-container:active { cursor: grabbing; }
+    .controls { text-align: right; margin-bottom: 0.5rem; }
+    .controls button { background: #21262d; border: 1px solid #30363d; color: #e6edf3; padding: 4px 12px; border-radius: 4px; cursor: pointer; margin-left: 4px; }
+    .controls button:hover { background: #30363d; }
+  </style>
+</head>
+<body>
+  <h1>perteval Architecture</h1>
+
+  <h2>L1 System Context -- 系统上下文</h2>
+  <div class="controls">
+    <button onclick="zoom(this, -0.2)">−</button>
+    <button onclick="zoom(this, 0.2)">+</button>
+    <button onclick="resetZoom(this)">Reset</button>
+  </div>
+  <div class="diagram-container">
+    <pre class="mermaid">
+flowchart TB
+    User["研究人员 / 生物信息学家<br/>使用 CLI 或 Python API 运行评估"]
+    System["perteval<br/>单细胞扰动预测统一评估框架"]
+    H5AD["H5AD 数据文件<br/>AnnData 格式的单细胞表达数据"]
+    YAML["Benchmark YAML<br/>基准配置文件"]
+    Output["评估结果<br/>JSON / CSV 输出"]
+    Models["外部预测模型<br/>实现 PerturbationModel 协议的第三方模型"]
+
+    User -- "perteval run / evaluate<br/>命令行调用" --> System
+    User -- "Python API 调用<br/>Evaluator / BenchmarkRunner" --> System
+    H5AD -- "加载 .h5ad 数据" --> System
+    YAML -- "读取基准配置" --> System
+    System -- "输出评估指标" --> Output
+    Models -- "注册并调用 predict" --> System
+
+    style System fill:#1a1a3e,stroke:#6366f1,stroke-width:3px,color:#e6edf3
+    style User fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style H5AD fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style YAML fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style Output fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style Models fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    </pre>
+  </div>
+
+  <h2>L2 Container -- 容器视图</h2>
+  <div class="controls">
+    <button onclick="zoom(this, -0.2)">−</button>
+    <button onclick="zoom(this, 0.2)">+</button>
+    <button onclick="resetZoom(this)">Reset</button>
+  </div>
+  <div class="diagram-container">
+    <pre class="mermaid">
+flowchart LR
+    subgraph CLI["CLI 入口"]
+        CliMain["cli.main<br/>argparse<br/>命令行解析与分发"]
+    end
+
+    subgraph DataLayer["L1 Data 数据层"]
+        Types["PerturbationData<br/>dataclass<br/>不可变数据容器"]
+        Accessor["LocalAccessor<br/>anndata<br/>H5AD 文件加载"]
+        Splitter["Splitter<br/>numpy<br/>数据集划分"]
+    end
+
+    subgraph ModelLayer["L2 Models 模型层"]
+        ModelReg["model_registry<br/>Registry<br/>模型注册表"]
+        Protocol["PerturbationModel<br/>Protocol<br/>模型协议接口"]
+        Baseline["MeanControl<br/>numpy<br/>基线模型"]
+    end
+
+    subgraph MetricLayer["L3 Metrics 指标层"]
+        MetricReg["MetricRegistry<br/>Registry<br/>指标注册表"]
+        FuncExpr["expression<br/>scipy<br/>pearson / mse / mae"]
+        FuncDE["de<br/>numpy<br/>overlap_at_k"]
+        FuncDist["distribution<br/>scipy<br/>edistance"]
+    end
+
+    subgraph BenchLayer["L4 Bench 评估层"]
+        Evaluator["Evaluator<br/>polars<br/>单次评估计算"]
+        Runner["BenchmarkRunner<br/>协调器<br/>端到端基准流水线"]
+        TaskMgr["TaskManager<br/>PyYAML<br/>YAML 配置解析"]
+        Compare["Compare<br/>polars<br/>多模型结果比较"]
+        Result["EvalResult<br/>dataclass<br/>结果容器与导出"]
+    end
+
+    H5AD["H5AD 文件"]
+    YAML["YAML 配置"]
+    JSON["JSON / CSV 输出"]
+
+    CliMain -- "run 命令" --> Runner
+    CliMain -- "evaluate 命令" --> Evaluator
+    CliMain -- "list 命令" --> ModelReg & MetricReg & TaskMgr
+
+    Runner --> TaskMgr
+    Runner --> Accessor
+    Runner --> Splitter
+    Runner --> ModelReg
+    Runner --> Evaluator
+    Runner --> Result
+
+    Evaluator --> MetricReg
+    Evaluator --> Result
+    MetricReg --> FuncExpr & FuncDE & FuncDist
+
+    ModelReg --> Baseline
+    Accessor --> Types
+    Evaluator --> Types
+
+    H5AD --> Accessor
+    YAML --> TaskMgr
+    Result --> JSON
+
+    Compare --> Result
+
+    style CliMain fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style Runner fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style Evaluator fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style Types fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style Accessor fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style Splitter fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style ModelReg fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style Protocol fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style Baseline fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style MetricReg fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style FuncExpr fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style FuncDE fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style FuncDist fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style TaskMgr fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style Compare fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style Result fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    </pre>
+  </div>
+
+  <h2>L3 Component -- BenchmarkRunner 内部组件</h2>
+  <div class="controls">
+    <button onclick="zoom(this, -0.2)">−</button>
+    <button onclick="zoom(this, 0.2)">+</button>
+    <button onclick="resetZoom(this)">Reset</button>
+  </div>
+  <div class="diagram-container">
+    <pre class="mermaid">
+flowchart TB
+    subgraph Runner["BenchmarkRunner 评估流水线"]
+        Init["__init__<br/>初始化组件依赖"]
+        MakeKeys["_make_model_keys<br/>处理重复模型名去重"]
+        RunLoop["run 主循环<br/>遍历 benchmark x model"]
+    end
+
+    subgraph TaskSystem["任务配置系统"]
+        TM["TaskManager<br/>加载并解析 YAML"]
+        BC["BenchmarkConfig<br/>不可变配置数据类"]
+    end
+
+    subgraph DataPipeline["数据处理管道"]
+        LA["LocalAccessor<br/>从磁盘加载 H5AD"]
+        SP["Splitter<br/>train/val/test 划分"]
+        PD["PerturbationData<br/>验证并封装数据对"]
+    end
+
+    subgraph ModelExec["模型执行"]
+        MR["model_registry.get<br/>惰性解析获取模型类"]
+        Train["model.train<br/>在训练集上训练"]
+        Predict["model.predict<br/>对控制组细胞预测"]
+    end
+
+    subgraph EvalPipeline["评估管道"]
+        EV["Evaluator.evaluate<br/>逐扰动计算指标"]
+        ER["EvalResult<br/>聚合统计与导出"]
+    end
+
+    Init --> TM & LA
+    RunLoop --> TM
+    TM --> BC
+    RunLoop --> LA
+    LA --> SP
+    SP --> MR
+    MR --> Train
+    Train --> Predict
+    Predict --> PD
+    PD --> EV
+    EV --> ER
+    MakeKeys --> RunLoop
+
+    style Runner fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style TaskSystem fill:#2e1a1a,stroke:#ef4444,stroke-width:1px,color:#e6edf3
+    style DataPipeline fill:#1a2e1a,stroke:#22c55e,stroke-width:1px,color:#e6edf3
+    style ModelExec fill:#2e2e1a,stroke:#eab308,stroke-width:1px,color:#e6edf3
+    style EvalPipeline fill:#1a1a3e,stroke:#6366f1,stroke-width:1px,color:#e6edf3
+    style TM fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style BC fill:#2e1a1a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+    style LA fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style SP fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style PD fill:#1a2e1a,stroke:#22c55e,stroke-width:2px,color:#e6edf3
+    style MR fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style Train fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style Predict fill:#2e2e1a,stroke:#eab308,stroke-width:2px,color:#e6edf3
+    style EV fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    style ER fill:#1a1a3e,stroke:#6366f1,stroke-width:2px,color:#e6edf3
+    </pre>
+  </div>
+
+  <h2>Runtime Data Flow -- 运行时数据流</h2>
+  <div class="controls">
+    <button onclick="zoom(this, -0.2)">−</button>
+    <button onclick="zoom(this, 0.2)">+</button>
+    <button onclick="resetZoom(this)">Reset</button>
+  </div>
+  <div class="diagram-container">
+    <pre class="mermaid">
+sequenceDiagram
+    participant User as 研究人员
+    participant CLI as CLI main
+    participant Runner as BenchmarkRunner
+    participant TM as TaskManager
+    participant LA as LocalAccessor
+    participant SP as Splitter
+    participant MR as model_registry
+    participant Model as PerturbationModel
+    participant EV as Evaluator
+    participant MetR as MetricRegistry
+    participant Func as 指标函数
+    participant ER as EvalResult
+
+    Note over User, CLI: 阶段一: 命令解析
+    User->>CLI: perteval run --benchmark norman19 --model mean_control
+    CLI->>Runner: 创建 BenchmarkRunner
+
+    Note over Runner, SP: 阶段二: 数据加载与划分
+    Runner->>TM: get norman19
+    TM-->>Runner: BenchmarkConfig YAML 配置
+    Runner->>LA: load norman19.h5ad
+    LA-->>Runner: AnnData 表达矩阵
+    Runner->>SP: split transfer 方法
+    SP-->>Runner: train / val / test 子集
+
+    Note over Runner, Model: 阶段三: 模型训练与预测
+    Runner->>MR: get mean_control
+    MR-->>Runner: MeanControl 类 惰性解析
+    Runner->>Model: train 训练集
+    Model-->>Runner: 模型就绪
+    Runner->>Model: predict 控制组细胞 + 扰动列表
+    Model-->>Runner: 预测 AnnData
+
+    Note over Runner, ER: 阶段四: 评估与输出
+    Runner->>EV: evaluate PerturbationData
+    loop 逐扰动计算
+        EV->>MetR: get 指标名
+        MetR-->>EV: MetricInfo 含函数引用
+        EV->>Func: 调用 pearson_delta / mse / overlap_at_k
+        Func-->>EV: 指标分数
+    end
+    EV->>ER: 构建 per_perturbation + aggregated
+    ER-->>Runner: EvalResult
+    Runner->>ER: to_json + to_csv
+    ER-->>User: JSON / CSV 结果文件
+    </pre>
+  </div>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+    function zoom(btn, delta) {
+      const container = btn.parentElement.nextElementSibling;
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+      const current = parseFloat(svg.style.transform?.match(/scale\(([^)]+)\)/)?.[1] || '1');
+      svg.style.transform = `scale(${Math.max(0.3, current + delta)})`;
+      svg.style.transformOrigin = 'top left';
+    }
+    function resetZoom(btn) {
+      const container = btn.parentElement.nextElementSibling;
+      const svg = container.querySelector('svg');
+      if (svg) svg.style.transform = 'scale(1)';
+    }
+  </script>
+</body>
+</html>
