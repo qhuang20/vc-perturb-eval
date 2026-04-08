@@ -39,3 +39,9 @@ ignore = ["N803", "N806"]  # Allow uppercase X, Y, XX etc. — standard math/mat
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.2.0",
+    "nbconvert>=7.17.1",
+]

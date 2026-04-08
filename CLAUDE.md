@@ -66,4 +66,4 @@ uv run perteval run --benchmark norman19 --model mean_control --data-dir ./data
 
 ## Next Steps
 
-See GitHub Issues for current tasks. Priority: integrate real Norman19 dataset.
+See GitHub Issues for current tasks. 

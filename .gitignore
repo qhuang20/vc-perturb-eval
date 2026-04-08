@@ -14,6 +14,7 @@ build/
 # Generated
 _architecture.html
 docs/superpowers/plans/
+notebooks/_output/
 
 # OS
 .DS_Store
