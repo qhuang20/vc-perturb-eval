@@ -11,6 +11,10 @@ dist/
 build/
 .venv/
 
+# Generated
+_architecture.html
+docs/superpowers/plans/
+
 # OS
 .DS_Store
 Thumbs.db
