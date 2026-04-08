@@ -21,10 +21,6 @@ dependencies = [
 models = ["torch>=2.0"]
 data = ["datasets>=2.0"]
 all = ["perteval[models,data]"]
-dev = [
-    "pytest>=8.0",
-    "ruff>=0.11",
-]
 
 [project.scripts]
 perteval = "perteval.cli.main:main"
@@ -42,6 +38,8 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
+    "pytest>=8.0",
+    "ruff>=0.11",
     "ipykernel>=7.2.0",
     "nbconvert>=7.17.1",
 ]

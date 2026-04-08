@@ -1819,10 +1819,6 @@ all = [
 data = [
     { name = "datasets" },
 ]
-dev = [
-    { name = "pytest" },
-    { name = "ruff" },
-]
 models = [
     { name = "torch" },
 ]
@@ -1831,6 +1827,8 @@ models = [
 dev = [
     { name = "ipykernel" },
     { name = "nbconvert" },
+    { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -1840,18 +1838,18 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.24" },
     { name = "perteval", extras = ["models", "data"], marker = "extra == 'all'" },
     { name = "polars", specifier = ">=0.20" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11" },
     { name = "scipy", specifier = ">=1.11" },
     { name = "torch", marker = "extra == 'models'", specifier = ">=2.0" },
 ]
-provides-extras = ["models", "data", "all", "dev"]
+provides-extras = ["models", "data", "all"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "ipykernel", specifier = ">=7.2.0" },
     { name = "nbconvert", specifier = ">=7.17.1" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "ruff", specifier = ">=0.11" },
 ]
 
 [[package]]
